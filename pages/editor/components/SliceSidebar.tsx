@@ -2,7 +2,7 @@ import { useSpriteContext } from "@/lib/SpriteContext";
 import { For, createSignal } from "solid-js";
 
 export default function SliceSidebar() {
-  const { state, updateSlice, removeSlice } = useSpriteContext();
+  const { state, updateSlice, removeSlice, focusedSliceId } = useSpriteContext();
   const [editingId, setEditingId] = createSignal<string | null>(null);
   const [tempName, setTempName] = createSignal("");
 
@@ -48,7 +48,11 @@ export default function SliceSidebar() {
           <div class="divide-y">
             <For each={state.slices}>
               {(slice) => (
-                <div class="p-3 hover:bg-gray-50 group relative flex items-center">
+                <div
+                  class={`p-3 hover:bg-gray-50 group relative flex items-center ${
+                    focusedSliceId() === slice.id ? "bg-blue-100" : ""
+                  }`}
+                >
                   <div class="w-8 h-8 flex-shrink-0 mr-3 bg-blue-100 rounded overflow-hidden">
                     {state.imageUrl && (
                       <div

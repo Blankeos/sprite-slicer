@@ -1,5 +1,5 @@
-import { SliceType, useSpriteContext } from "@/lib/SpriteContext";
-import { createSignal, Show } from "solid-js";
+import { SliceRect, SliceType, useSpriteContext } from "@/lib/SpriteContext";
+import { createMemo, createSignal, Show } from "solid-js";
 
 type ToolBarProps = {
   onExport: () => void;
@@ -20,6 +20,8 @@ export default function ToolBar(props: ToolBarProps) {
     toggleGrid,
     setGridSize,
     updateSlice,
+    focusedSliceId,
+    updateSliceDimensions,
   } = useSpriteContext();
 
   const [gridRows, setGridRows] = createSignal(state.gridRows);
@@ -28,6 +30,10 @@ export default function ToolBar(props: ToolBarProps) {
   const [pixelHeight, setPixelHeight] = createSignal(state.pixelHeight);
   const [editorGridSize, setEditorGridSize] = createSignal(state.gridSize);
   const [selectedSlice, setSelectedSlice] = createSignal<SliceRect | null>(null);
+
+  const focusedSlice = createMemo(() =>
+    state.slices?.find((slice) => slice.id === focusedSliceId())
+  );
 
   const handleSliceTypeChange = (type: SliceType) => {
     setSliceType(type);
@@ -345,36 +351,36 @@ export default function ToolBar(props: ToolBarProps) {
       </div>
 
       {/* Selected Slice Controls */}
-      <Show when={selectedSlice()}>
-        <div class="flex items-center gap-2">
-          <div class="flex items-center">
-            <label class="text-sm text-gray-700 mr-2">Width:</label>
+      <Show when={focusedSlice()}>
+        <div class="flex gap-4 items-center">
+          <div class="flex gap-2 items-center">
+            <label>Width:</label>
             <input
               type="number"
-              min="1"
-              value={selectedSlice()?.width}
-              onInput={(e) => {
-                const width = parseInt(e.target.value);
-                if (width > 0 && selectedSlice()) {
-                  updateSlice(selectedSlice()!.id, { width });
-                }
-              }}
-              class="w-16 h-8 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              value={focusedSlice()!.width}
+              onInput={(e) =>
+                updateSliceDimensions(
+                  focusedSlice()!.id,
+                  Number(e.target.value),
+                  focusedSlice()!.height
+                )
+              }
+              class="w-20 px-2 py-1 border rounded"
             />
           </div>
-          <div class="flex items-center">
-            <label class="text-sm text-gray-700 mr-2">Height:</label>
+          <div class="flex gap-2 items-center">
+            <label>Height:</label>
             <input
               type="number"
-              min="1"
-              value={selectedSlice()?.height}
-              onInput={(e) => {
-                const height = parseInt(e.target.value);
-                if (height > 0 && selectedSlice()) {
-                  updateSlice(selectedSlice()!.id, { height });
-                }
-              }}
-              class="w-16 h-8 py-1 px-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              value={focusedSlice()?.height}
+              onInput={(e) =>
+                updateSliceDimensions(
+                  focusedSlice()!.id,
+                  focusedSlice()!.width,
+                  Number(e.target.value)
+                )
+              }
+              class="w-20 px-2 py-1 border rounded"
             />
           </div>
         </div>

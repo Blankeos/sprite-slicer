@@ -4,7 +4,8 @@ import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid
 const RESIZE_HANDLE_SIZE = 8;
 
 export default function SpriteCanvas() {
-  const { state, addSlice, updateSlice, setZoom, setPan } = useSpriteContext();
+  const { state, addSlice, updateSlice, setZoom, setPan, focusSlice, focusedSliceId } =
+    useSpriteContext();
 
   let canvasRef: HTMLDivElement | undefined;
   let imgRef: HTMLImageElement | undefined;
@@ -18,6 +19,11 @@ export default function SpriteCanvas() {
     index: number;
     offsetX: number;
     offsetY: number;
+  } | null>(null);
+  const [isResizing, setIsResizing] = createSignal(false);
+  const [resizeState, setResizeState] = createSignal<{
+    slice: SliceRect;
+    corner: "nw" | "ne" | "sw" | "se";
   } | null>(null);
 
   // Calculate the actual scaled positions based on the zoom level and pan position
@@ -126,6 +132,12 @@ export default function SpriteCanvas() {
   };
 
   const handleMouseUp = (e: MouseEvent) => {
+    if (isResizing()) {
+      handleResizeEnd();
+      setDragging(false);
+      setDraggedSlice(null);
+      return;
+    }
     if (isDrawing()) {
       setIsDrawing(false);
 
@@ -155,6 +167,18 @@ export default function SpriteCanvas() {
     setDragging(false);
   };
 
+  const handleResizeStart =
+    (slice: SliceRect, corner: "nw" | "ne" | "sw" | "se") => (e: MouseEvent) => {
+      e.stopPropagation();
+      setIsResizing(true);
+      setResizeState({ slice, corner });
+    };
+
+  const handleResizeEnd = () => {
+    setIsResizing(false);
+    setResizeState(null);
+  };
+
   const handleResize = (e: MouseEvent, slice: SliceRect, corner: "nw" | "ne" | "sw" | "se") => {
     e.stopPropagation();
     const pos = getScaledPosition(e.clientX, e.clientY);
@@ -165,24 +189,55 @@ export default function SpriteCanvas() {
 
     let newWidth = slice.width;
     let newHeight = slice.height;
+    let deltaWidth = 0;
+    let deltaHeight = 0;
 
     // Calculate new dimensions with boundary constraints
     switch (corner) {
       case "nw":
-        newWidth = Math.max(1, Math.min(slice.width - (pos.x - slice.x), maxX));
-        newHeight = Math.max(1, Math.min(slice.height - (pos.y - slice.y), maxY));
+        newWidth = Math.max(1, Math.min(slice.width + (slice.x - pos.x), maxX));
+        newHeight = Math.max(1, Math.min(slice.height + (slice.y - pos.y), maxY));
+        deltaWidth = slice.width - newWidth;
+        deltaHeight = slice.height - newHeight;
+
+        updateSlice(slice.id, {
+          x: slice.x + Math.round(deltaWidth),
+          y: slice.y + Math.round(deltaHeight), // Keep y position fixed
+          width: Math.round(newWidth),
+          height: Math.round(newHeight),
+        });
         break;
       case "ne":
         newWidth = Math.max(1, Math.min(slice.width + (pos.x - (slice.x + slice.width)), maxX));
-        newHeight = Math.max(1, Math.min(slice.height - (pos.y - slice.y), maxY));
+        newHeight = Math.max(1, Math.min(slice.height + (slice.y - pos.y), maxY));
+        deltaWidth = newWidth - slice.width;
+        deltaHeight = slice.height - newHeight;
+
+        updateSlice(slice.id, {
+          x: slice.x, // Keep x position fixed
+          y: slice.y + Math.round(deltaHeight),
+          width: Math.round(newWidth),
+          height: Math.round(newHeight),
+        });
         break;
       case "sw":
-        newWidth = Math.max(1, Math.min(slice.width - (pos.x - slice.x), maxX));
+        newWidth = Math.max(1, Math.min(slice.width + (slice.x - pos.x), maxX));
         newHeight = Math.max(1, Math.min(slice.height + (pos.y - (slice.y + slice.height)), maxY));
+        deltaWidth = slice.width - newWidth;
+        updateSlice(slice.id, {
+          x: slice.x + Math.round(deltaWidth),
+          y: slice.y, // Keep y position fixed
+          width: Math.round(newWidth),
+          height: Math.round(newHeight),
+        });
         break;
       case "se":
         newWidth = Math.max(1, Math.min(slice.width + (pos.x - (slice.x + slice.width)), maxX));
         newHeight = Math.max(1, Math.min(slice.height + (pos.y - (slice.y + slice.height)), maxY));
+        updateSlice(slice.id, {
+          width: Math.round(newWidth),
+          height: Math.round(newHeight),
+        });
         break;
     }
 
@@ -203,14 +258,48 @@ export default function SpriteCanvas() {
     });
   };
 
+  const handleMove = (e: MouseEvent) => {
+    if (isResizing() && resizeState()) {
+      handleResize(e, resizeState()!.slice, resizeState()!.corner);
+      return;
+    }
+    if (dragging()) {
+      const newPan = {
+        x: e.clientX - dragStart().x,
+        y: e.clientY - dragStart().y,
+      };
+      setPan(newPan);
+    } else if (draggedSlice()) {
+      const pos = getScaledPosition(e.clientX, e.clientY);
+      const slice = state.slices[draggedSlice()!.index];
+
+      // Calculate new position, accounting for the offset within the slice where the drag started
+      const newX = Math.round(pos.x - draggedSlice()!.offsetX);
+      const newY = Math.round(pos.y - draggedSlice()!.offsetY);
+
+      // Create an updated slice with the new position (maintaining the same width and height)
+      const updatedSlice = {
+        ...slice,
+        x: newX,
+        y: newY,
+      };
+
+      // Update the slice in the context
+      updateSlice(slice.id, updatedSlice);
+    }
+  };
+
   const renderResizeHandles = (slice: SliceRect) => {
+    if (focusedSliceId() !== slice.id) return null;
+
     const handleStyle = {
       position: "absolute",
       width: `${RESIZE_HANDLE_SIZE / state.zoom}px`,
       height: `${RESIZE_HANDLE_SIZE / state.zoom}px`,
-      backgroundColor: "white",
-      border: "1px solid #3b82f6",
-      cursor: "pointer",
+      backgroundColor: "#3b82f6",
+      border: "1px solid white",
+      borderRadius: "50%",
+      transform: "translate(-50%, -50%)",
     };
 
     return (
@@ -223,7 +312,8 @@ export default function SpriteCanvas() {
             top: `-${RESIZE_HANDLE_SIZE / 2 / state.zoom}px`,
             cursor: "nwse-resize",
           }}
-          onMouseDown={(e) => handleResize(e, slice, "nw")}
+          onMouseDown={handleResizeStart(slice, "nw")}
+          onMouseUp={handleResizeEnd}
         />
         {/* NE handle */}
         <div
@@ -233,7 +323,8 @@ export default function SpriteCanvas() {
             top: `-${RESIZE_HANDLE_SIZE / 2 / state.zoom}px`,
             cursor: "nesw-resize",
           }}
-          onMouseDown={(e) => handleResize(e, slice, "ne")}
+          onMouseDown={handleResizeStart(slice, "ne")}
+          onMouseUp={handleResizeEnd}
         />
         {/* SW handle */}
         <div
@@ -243,7 +334,8 @@ export default function SpriteCanvas() {
             top: `calc(100% - ${RESIZE_HANDLE_SIZE / 2 / state.zoom}px)`,
             cursor: "nesw-resize",
           }}
-          onMouseDown={(e) => handleResize(e, slice, "sw")}
+          onMouseDown={handleResizeStart(slice, "sw")}
+          onMouseUp={handleResizeEnd}
         />
         {/* SE handle */}
         <div
@@ -253,7 +345,8 @@ export default function SpriteCanvas() {
             top: `calc(100% - ${RESIZE_HANDLE_SIZE / 2 / state.zoom}px)`,
             cursor: "nwse-resize",
           }}
-          onMouseDown={(e) => handleResize(e, slice, "se")}
+          onMouseDown={handleResizeStart(slice, "se")}
+          onMouseUp={handleResizeEnd}
         />
       </>
     );
@@ -262,6 +355,10 @@ export default function SpriteCanvas() {
   const renderSlice = (slice: SliceRect) => (
     <div
       class="absolute bg-blue-500/20"
+      classList={{
+        "border-2 border-blue-500": focusedSliceId() === slice.id,
+        "bg-blue-500/30": focusedSliceId() === slice.id,
+      }}
       style={{
         left: `${slice.x}px`,
         top: `${slice.y}px`,
@@ -272,6 +369,7 @@ export default function SpriteCanvas() {
         "border-color": "rgb(59, 130, 246)",
         cursor: "move",
       }}
+      onClick={() => focusSlice(slice.id)}
     >
       {renderResizeHandles(slice)}
       <div
@@ -294,7 +392,7 @@ export default function SpriteCanvas() {
     if (canvasRef) {
       canvasRef.addEventListener("wheel", handleWheel, { passive: false });
       canvasRef.addEventListener("mousedown", handleMouseDown);
-      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mousemove", handleMove);
       window.addEventListener("mouseup", handleMouseUp);
     }
   });
@@ -305,7 +403,7 @@ export default function SpriteCanvas() {
       canvasRef.removeEventListener("wheel", handleWheel);
       canvasRef.removeEventListener("mousedown", handleMouseDown);
     }
-    window.removeEventListener("mousemove", handleMouseMove);
+    window.removeEventListener("mousemove", handleMove);
     window.removeEventListener("mouseup", handleMouseUp);
   });
 
@@ -522,7 +620,7 @@ export default function SpriteCanvas() {
           {renderVerticalRuler()}
           <img
             ref={imgRef}
-            src={state.imageUrl}
+            src={state.imageUrl!}
             alt="Sprite Atlas"
             class="max-w-none"
             style={{

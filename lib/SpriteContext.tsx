@@ -30,6 +30,7 @@ type SpriteState = {
   showGrid: boolean;
   gridSize: number;
   selectedSliceId: string | null;
+  focusedSliceId: string | null;
 };
 
 // Define context functions
@@ -54,9 +55,12 @@ type SpriteContextValue = {
   setGridSize: (size: number) => void;
   selectSlice: (id: string | null) => void;
   getSelectedSlice: () => SliceRect | null;
-  selectedSlice: SliceRect | null;
+  selectedSlice: () => SliceRect | null;
   setSelectedSlice: (slice: SliceRect | null) => void;
   updateSliceDimensions: (id: string, width: number, height: number) => void;
+  focusSlice: (id: string) => void;
+  blurSlice: () => void;
+  focusedSliceId: () => string | null;
 };
 
 // Create the context
@@ -81,9 +85,11 @@ export function SpriteProvider(props: { children: JSX.Element }) {
     showGrid: false,
     gridSize: 16,
     selectedSliceId: null,
+    focusedSliceId: null,
   });
 
   const [selectedSlice, setSelectedSlice] = createSignal<SliceRect | null>(null);
+  const [focusedSliceId, setFocusedSliceId] = createSignal<string | null>(null);
 
   // Helper to generate a unique slice name
   const generateSliceName = () => {
@@ -246,6 +252,14 @@ export function SpriteProvider(props: { children: JSX.Element }) {
     return state.slices.find((slice) => slice.id === state.selectedSliceId) || null;
   };
 
+  const focusSlice = (id: string) => {
+    setFocusedSliceId(id);
+  };
+
+  const blurSlice = () => {
+    setFocusedSliceId(null);
+  };
+
   const updateSliceDimensions = (id: string, width: number, height: number) => {
     setState("slices", (slices) =>
       slices.map((slice) => (slice.id === id ? { ...slice, width, height } : slice))
@@ -278,6 +292,9 @@ export function SpriteProvider(props: { children: JSX.Element }) {
         selectedSlice,
         setSelectedSlice,
         updateSliceDimensions,
+        focusSlice,
+        blurSlice,
+        focusedSliceId,
       }}
     >
       {props.children}
