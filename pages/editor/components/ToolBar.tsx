@@ -2,6 +2,7 @@ import { IconHideSlices, IconPixelated, IconRuler } from "@/assets/icons";
 import { Tippy } from "@/lib/solid-tippy";
 import { SliceRect, SliceType, useSpriteContext } from "@/lib/SpriteContext";
 import { createMemo, createSignal, Show } from "solid-js";
+import { navigate } from "vike/client/router";
 
 type ToolBarProps = {
   onExport: () => void;
@@ -66,8 +67,36 @@ export default function ToolBar(props: ToolBarProps) {
     setSelectedSlice(slice);
   };
 
+  const handleBackToHome = () => {
+    navigate("/");
+  };
+
   return (
     <div class="flex flex-wrap items-center gap-4 border-2 border-b border-black bg-white p-4">
+      <Tippy
+        content="Back to home page"
+        props={{ animation: "shift-away-subtle", placement: "bottom" }}
+      >
+        <button
+          onClick={handleBackToHome}
+          class="flex cursor-pointer items-center border-2 border-black bg-gray-700 px-2 py-1 text-xs font-bold text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="mr-1 h-3 w-3"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+        </button>
+      </Tippy>
       {/* Slice Type Selection */}
       <div>
         <label class="mb-1.5 block text-sm font-bold text-black">Slice Tool</label>

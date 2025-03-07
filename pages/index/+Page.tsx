@@ -1,14 +1,11 @@
 import { useSpriteContext } from "@/lib/SpriteContext";
-import getTitle from "@/utils/get-title";
 import { createDropzone } from "@soorria/solid-dropzone";
 import { createSignal, Show } from "solid-js";
 import { useMetadata } from "vike-metadata-solid";
 import { navigate } from "vike/client/router";
 
 export default function Page() {
-  useMetadata({
-    title: getTitle("Sprite Atlas Slicer"),
-  });
+  useMetadata({});
 
   return (
     <div class="flex min-h-screen flex-col items-center justify-center bg-yellow-100 p-4">

@@ -1,5 +1,4 @@
 import { useSpriteContext } from "@/lib/SpriteContext";
-import getTitle from "@/utils/get-title";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import { createEffect, createSignal } from "solid-js";
@@ -10,9 +9,7 @@ import SpriteCanvas from "./components/SpriteCanvas";
 import ToolBar from "./components/ToolBar";
 
 export default function EditorPage() {
-  useMetadata({
-    title: getTitle("Sprite Editor"),
-  });
+  useMetadata({});
 
   return <EditorContent />;
 }
@@ -94,12 +91,12 @@ function EditorContent() {
   };
 
   return (
-    <div class="flex h-screen bg-gray-100 overflow-hidden">
+    <div class="flex h-screen overflow-hidden bg-gray-100">
       {/* Left sidebar - list of slices */}
       <SliceSidebar />
 
       {/* Main content area */}
-      <div class="flex flex-col flex-grow h-full overflow-hidden">
+      <div class="flex h-full flex-grow flex-col overflow-hidden">
         {/* Toolbar */}
         <ToolBar onExport={handleExport} exportLoading={exportLoading()} />
 
