@@ -4,6 +4,7 @@ import { type FlowProps } from "solid-js";
 import { useMetadata } from "vike-metadata-solid";
 
 import "@/styles/app.css";
+import "@/styles/bprogress.css";
 import "tippy.js/animations/shift-away-subtle.css";
 import "tippy.js/dist/tippy.css";
 
