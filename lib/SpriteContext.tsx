@@ -1,5 +1,5 @@
+import { useLocalStorageStore } from "bagon-hooks";
 import { createContext, createSignal, JSX, useContext } from "solid-js";
-import { createStore } from "solid-js/store";
 
 // Define types for our slices
 export type SliceType = "manual" | "grid" | "pixel";
@@ -68,24 +68,27 @@ const SpriteContext = createContext<SpriteContextValue>();
 
 // Create the provider component
 export function SpriteProvider(props: { children: JSX.Element }) {
-  const [state, setState] = createStore<SpriteState>({
-    image: null,
-    imageUrl: null,
-    sliceType: "grid",
-    gridRows: 4,
-    gridCols: 4,
-    pixelWidth: 32,
-    pixelHeight: 32,
-    slices: [],
-    zoom: 1,
-    pan: { x: 0, y: 0 },
-    showSlices: true,
-    pixelated: true,
-    showRulers: true,
-    showGrid: false,
-    gridSize: 16,
-    selectedSliceId: null,
-    focusedSliceId: null,
+  const [state, setState] = useLocalStorageStore<SpriteState>({
+    key: "sprite-slicer-config",
+    defaultValue: {
+      image: null,
+      imageUrl: null,
+      sliceType: "grid",
+      gridRows: 4,
+      gridCols: 4,
+      pixelWidth: 32,
+      pixelHeight: 32,
+      slices: [],
+      zoom: 1,
+      pan: { x: 0, y: 0 },
+      showSlices: true,
+      pixelated: true,
+      showRulers: true,
+      showGrid: false,
+      gridSize: 16,
+      selectedSliceId: null,
+      focusedSliceId: null,
+    },
   });
 
   const [selectedSlice, setSelectedSlice] = createSignal<SliceRect | null>(null);

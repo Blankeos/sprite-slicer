@@ -11,9 +11,11 @@ export default function Page() {
   });
 
   return (
-    <div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-      <h1 class="text-3xl font-bold text-gray-800 mb-8">Sprite Atlas Slicer</h1>
-      <p class="text-gray-600 mb-8 max-w-xl text-center">
+    <div class="flex min-h-screen flex-col items-center justify-center bg-yellow-100 p-4">
+      <h1 class="mb-8 rotate-1 transform border-4 border-black bg-pink-300 px-6 py-3 text-5xl font-black text-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+        Sprite Atlas Slicer
+      </h1>
+      <p class="mb-8 max-w-xl -rotate-1 transform border-4 border-black bg-cyan-200 p-4 text-center font-bold text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
         Upload your sprite atlas image to slice it into individual sprites. You can slice manually
         or automatically using grid or pixel dimensions.
       </p>
@@ -24,7 +26,7 @@ export default function Page() {
 
 function UploadZone() {
   const { setImage } = useSpriteContext();
-  const [dragActive, setDragActive] = createSignal(false);
+  const [_dragActive, _setDragActive] = createSignal(false);
   const [fileError, setFileError] = createSignal("");
 
   const onDrop = (acceptedFiles: File[]) => {
@@ -60,46 +62,54 @@ function UploadZone() {
     <div class="w-full max-w-2xl">
       <div
         {...getRootProps()}
-        class={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-          isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-blue-400"
-        }`}
+        class={`transform cursor-pointer border-4 border-black bg-white p-10 text-center ${
+          isDragActive ? "rotate-1 bg-lime-200" : "rotate-0 hover:rotate-1 hover:bg-orange-100"
+        } shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-200`}
       >
         <input {...getInputProps()} />
-        <div class="flex flex-col items-center justify-center space-y-4">
-          <div class="p-4 bg-blue-100 rounded-full">
+        <div class="flex flex-col items-center justify-center space-y-6">
+          <div class="rotate-3 transform border-4 border-black bg-purple-300 p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              class="h-10 w-10 text-blue-500"
+              class="h-16 w-16 text-black"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              stroke-width="3"
             >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                stroke-width="2"
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
               />
             </svg>
           </div>
           <div>
-            <p class="text-lg font-medium text-gray-700">Drag and drop your sprite atlas here</p>
-            <p class="text-sm text-gray-500 mt-1">or click to browse your files</p>
+            <p class="text-2xl font-black text-black">Drag and drop your sprite atlas here</p>
+            <p class="mt-2 inline-block -rotate-1 transform bg-yellow-200 px-2 text-lg font-bold text-gray-700">
+              or click to browse your files
+            </p>
           </div>
-          <p class="text-xs text-gray-400">Supported formats: PNG, JPG, GIF, WEBP</p>
+          <p class="text-md border-2 border-black bg-blue-100 px-3 py-1 font-bold text-gray-600">
+            Supported formats: PNG, JPG, GIF, WEBP
+          </p>
         </div>
       </div>
 
       <Show when={fileError()}>
-        <p class="text-red-500 text-center mt-2">{fileError()}</p>
+        <p class="mt-4 rotate-1 transform border-2 border-red-500 bg-white p-2 text-center font-bold text-red-500 shadow-[3px_3px_0px_0px_rgba(239,68,68,1)]">
+          {fileError()}
+        </p>
       </Show>
 
-      <div class="mt-6">
-        <p class="text-sm text-gray-500 mb-2">Or upload from your computer:</p>
+      <div class="mt-8">
+        <p class="mb-3 -rotate-1 transform text-center font-bold text-black">
+          Or upload from your computer:
+        </p>
         <div class="flex items-center justify-center">
           <label
             for="file-upload"
-            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition cursor-pointer"
+            class="rotate-1 transform cursor-pointer border-4 border-black bg-green-400 px-6 py-3 text-lg font-black text-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-y-[-4px] hover:rotate-2"
           >
             Select Image File
             <input
