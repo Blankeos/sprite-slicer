@@ -2,11 +2,20 @@ import { SliceRect, useSpriteContext } from "@/lib/SpriteContext";
 import { clamp } from "@/utils/clamp";
 import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 
-const RESIZE_HANDLE_SIZE = 8;
+import { useHotkeys } from "bagon-hooks";
 
 export default function SpriteCanvas() {
-  const { state, addSlice, updateSlice, setZoom, setPan, focusSlice, focusedSliceId, blurSlice } =
-    useSpriteContext();
+  const {
+    state,
+    addSlice,
+    removeSlice,
+    updateSlice,
+    setZoom,
+    setPan,
+    focusSlice,
+    focusedSliceId,
+    blurSlice,
+  } = useSpriteContext();
 
   let canvasRef: HTMLDivElement | undefined;
   let [imgRef, setImgRef] = createSignal<HTMLImageElement | undefined>();
@@ -38,6 +47,33 @@ export default function SpriteCanvas() {
       };
     }
   });
+
+  // Add hotkeys handler for delete functionality
+  // Add this useHotkeys hook after your other hooks and state declarations
+  useHotkeys([
+    [
+      "meta+x",
+      (e) => {
+        // If a slice is focused, delete it
+        if (focusedSliceId()) {
+          e.preventDefault(); // Prevent default cut behavior
+          removeSlice(focusedSliceId()!);
+          blurSlice(); // Clear focus after deletion
+        }
+      },
+    ],
+    [
+      "delete",
+      (e) => {
+        // If a slice is focused, delete it
+        if (focusedSliceId()) {
+          e.preventDefault(); // Prevent default cut behavior
+          removeSlice(focusedSliceId()!);
+          blurSlice(); // Clear focus after deletion
+        }
+      },
+    ],
+  ]);
 
   // Create memos for tick calculations
   const horizontalTicks = createMemo(() => {
