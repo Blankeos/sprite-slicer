@@ -1,4 +1,5 @@
 import { useSpriteContext } from "@/lib/SpriteContext";
+import getTitle from "@/utils/get-title";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import { createEffect, createSignal } from "solid-js";
@@ -9,7 +10,9 @@ import SpriteCanvas from "./components/SpriteCanvas";
 import ToolBar from "./components/ToolBar";
 
 export default function EditorPage() {
-  useMetadata({});
+  useMetadata({
+    title: getTitle("Editor"),
+  });
 
   return <EditorContent />;
 }
