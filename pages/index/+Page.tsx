@@ -1,5 +1,6 @@
 import { useSpriteContext } from "@/lib/SpriteContext";
 import { createDropzone } from "@soorria/solid-dropzone";
+import { useHotkeys, useOs } from "bagon-hooks";
 import { createSignal, Show } from "solid-js";
 import { useMetadata } from "vike-metadata-solid";
 import { navigate } from "vike/client/router";
@@ -25,6 +26,7 @@ function UploadZone() {
   const { setImage } = useSpriteContext();
   const [_dragActive, _setDragActive] = createSignal(false);
   const [fileError, setFileError] = createSignal("");
+  const os = useOs();
 
   const onDrop = (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -55,6 +57,41 @@ function UploadZone() {
     }, 100);
   };
 
+  // Handle clipboard paste
+  useHotkeys([
+    [
+      "meta+v",
+      (e: KeyboardEvent) => {
+        e.preventDefault();
+        navigator.clipboard
+          .read()
+          .then(async (clipboardItems) => {
+            for (const clipboardItem of clipboardItems) {
+              for (const type of clipboardItem.types) {
+                if (type.startsWith("image/")) {
+                  try {
+                    const blob = await clipboardItem.getType(type);
+                    const file = new File([blob], "clipboard-image." + type.split("/")[1], {
+                      type,
+                    });
+                    handleFile(file);
+                    break;
+                  } catch (err) {
+                    console.error("Failed to get image from clipboard:", err);
+                    setFileError("Failed to get image from clipboard");
+                  }
+                }
+              }
+            }
+          })
+          .catch((err) => {
+            console.error("Clipboard error:", err);
+            setFileError("Could not access clipboard");
+          });
+      },
+    ],
+  ]);
+
   return (
     <div class="w-full max-w-2xl">
       <div
@@ -73,6 +110,7 @@ function UploadZone() {
               viewBox="0 0 24 24"
               stroke="currentColor"
               stroke-width="3"
+              aria-label="Upload icon"
             >
               <path
                 stroke-linecap="round"
@@ -83,6 +121,13 @@ function UploadZone() {
           </div>
           <div>
             <p class="text-2xl font-black text-black">Drag and drop your sprite atlas here</p>
+            <p class="mt-2 font-bold text-gray-800">
+              or press{" "}
+              <span class="inline-block border border-black bg-yellow-200 px-2 py-1 font-black">
+                {os() === "macos" ? "⌘+V" : "Ctrl+V"}
+              </span>{" "}
+              to paste
+            </p>
             <p class="mt-2 inline-block -rotate-1 transform bg-yellow-200 px-2 text-lg font-bold text-gray-700">
               or click to browse your files
             </p>
