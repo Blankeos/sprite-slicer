@@ -1,1 +1,90 @@
 @import "tailwindcss";
+
+/* Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=DM+Mono:wght@400;500&family=Outfit:wght@400;600;700;800;900&display=swap");
+
+/* ===== Landing Page ===== */
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(var(--float-rot, 3deg));
+  }
+  50% {
+    transform: translateY(-8px) rotate(var(--float-rot, 3deg));
+  }
+}
+
+@keyframes grid-scroll {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 40px 40px;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-shadow {
+  0%,
+  100% {
+    box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+  }
+  50% {
+    box-shadow: 10px 10px 0px 0px rgba(0, 0, 0, 1);
+  }
+}
+
+.landing-bg {
+  background-color: #fef9c3;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: grid-scroll 20s linear infinite;
+}
+
+.font-display {
+  font-family: "Bricolage Grotesque", sans-serif;
+}
+
+.font-mono-dm {
+  font-family: "DM Mono", monospace;
+}
+
+.font-body {
+  font-family: "Outfit", sans-serif;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-pulse-shadow {
+  animation: pulse-shadow 2s ease-in-out infinite;
+}
+
+.neo-btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.neo-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 10px 10px 0px 0px rgba(0, 0, 0, 1);
+}
+.neo-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+}

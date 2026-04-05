@@ -1,3 +1,9 @@
 export { default as IconPixelated } from "./pixelarticons_visible";
 export { default as IconHideSlices } from "./solar_eye-scan-bold-duotone";
 export { default as IconRuler } from "./solar_ruler-angular-line-duotone";
+export { default as IconCloudUpload } from './solar:cloud-upload-bold.tsx';
+export { default as IconGridLayout } from './ri:layout-grid-fill.tsx';
+export { default as IconSelectObject } from './fluent:select-object-24-filled.tsx';
+export { default as IconImagePixel } from './fluent-mdl2:image-pixel.tsx';
+export { default as IconSparkle } from './ph:sparkle-bold.tsx';
+export { default as IconScissors } from './pixelarticons:scissors.tsx';

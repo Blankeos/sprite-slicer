@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "iconmate": {
+      "source": "blankeos/iconmate",
+      "sourceType": "github",
+      "computedHash": "7eee9ca3a8df957aef1bede987f471b8d2771a4ff9705c2f389200d69472a871"
+    }
+  }
+}
