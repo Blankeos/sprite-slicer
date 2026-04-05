@@ -38,7 +38,7 @@ export default function Page() {
     if (file) handleFile(file);
   };
 
-  const { getRootProps, getInputProps, isDragActive } = createDropzone({
+  const dropzone = createDropzone({
     onDrop,
     accept: [".png", ".jpg", ".jpeg", ".gif", ".webp"],
     multiple: false,
@@ -46,11 +46,11 @@ export default function Page() {
   });
 
   return (
-    <div {...getRootProps()} class="landing-bg relative min-h-screen overflow-hidden">
-      <input {...getInputProps()} />
+    <div {...dropzone.getRootProps()} class="landing-bg relative min-h-screen overflow-hidden">
+      <input {...dropzone.getInputProps()} />
 
       {/* Full-screen drag overlay */}
-      <Show when={isDragActive}>
+      <Show when={dropzone.isDragActive}>
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div class="animate-fade-up flex flex-col items-center gap-4">
             <div class="border-4 border-white bg-lime-300 p-6 shadow-[8px_8px_0px_0px_rgba(255,255,255,0.3)]">
