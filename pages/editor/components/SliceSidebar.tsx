@@ -25,7 +25,7 @@ export default function SliceSidebar() {
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "Escape") {
+    if (e.key === "Escape" || e.key === "Enter") {
       setEditingId(null);
     }
   };
@@ -72,7 +72,7 @@ export default function SliceSidebar() {
                       fallback={
                         <div class="flex items-center">
                           <span
-                            class="truncate text-sm text-gray-800"
+                            class="truncate border-b border-transparent text-sm text-gray-800"
                             onDblClick={() => startEditing(slice.id, slice.name)}
                           >
                             {slice.name}
@@ -101,13 +101,13 @@ export default function SliceSidebar() {
                       }
                     >
                       <input
+                        ref={(el) => requestAnimationFrame(() => el.focus())}
                         type="text"
                         value={tempName()}
                         onInput={(e) => handleNameChange(slice.id, e.target.value)}
                         onBlur={() => setEditingId(null)}
                         onKeyDown={handleKeyDown}
-                        class="w-full rounded border border-blue-500 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                        autofocus
+                        class="w-full border-b border-blue-500 text-sm focus:outline-none"
                       />
                     </Show>
 

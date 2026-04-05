@@ -10,8 +10,6 @@ app.use(csrf());
 /**
  * The base router. Include all the routes here from `./routes/*`
  */
-export const appRouter = app
-    .route("/", authController)
-    .route("/", todosController);
+export const appRouter = app.route("/", authController).route("/", todosController);
 
 export type AppRouter = typeof appRouter;

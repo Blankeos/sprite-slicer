@@ -29,6 +29,8 @@ type SpriteState = {
   showRulers: boolean;
   showGrid: boolean;
   gridSize: number;
+  namePrefix: string;
+  startIndex: number;
   selectedSliceId: string | null;
   focusedSliceId: string | null;
 };
@@ -58,6 +60,9 @@ type SpriteContextValue = {
   selectedSlice: () => SliceRect | null;
   setSelectedSlice: (slice: SliceRect | null) => void;
   updateSliceDimensions: (id: string, width: number, height: number) => void;
+  setNamePrefix: (prefix: string) => void;
+  setStartIndex: (index: number) => void;
+  applyNames: () => void;
   focusSlice: (id: string) => void;
   blurSlice: () => void;
   focusedSliceId: () => string | null;
@@ -86,6 +91,8 @@ export function SpriteProvider(props: { children: JSX.Element }) {
       showRulers: true,
       showGrid: false,
       gridSize: 16,
+      namePrefix: "slice",
+      startIndex: 0,
       selectedSliceId: null,
       focusedSliceId: null,
     },
@@ -96,8 +103,8 @@ export function SpriteProvider(props: { children: JSX.Element }) {
 
   // Helper to generate a unique slice name
   const generateSliceName = () => {
-    const index = state.slices.length;
-    return `slice${index.toString().padStart(2, "0")}`;
+    const index = state.slices.length + state.startIndex;
+    return `${state.namePrefix}${index.toString().padStart(2, "0")}`;
   };
 
   // Action functions
@@ -177,7 +184,7 @@ export function SpriteProvider(props: { children: JSX.Element }) {
         for (let row = 0; row < state.gridRows; row++) {
           for (let col = 0; col < state.gridCols; col++) {
             const id = crypto.randomUUID();
-            const name = `slice${(row * state.gridCols + col).toString().padStart(2, "0")}`;
+            const name = `${state.namePrefix}${(row * state.gridCols + col + state.startIndex).toString().padStart(2, "0")}`;
 
             setState("slices", (slices) => [
               ...slices,
@@ -199,7 +206,7 @@ export function SpriteProvider(props: { children: JSX.Element }) {
         for (let row = 0; row < rows; row++) {
           for (let col = 0; col < cols; col++) {
             const id = crypto.randomUUID();
-            const name = `slice${(row * cols + col).toString().padStart(2, "0")}`;
+            const name = `${state.namePrefix}${(row * cols + col + state.startIndex).toString().padStart(2, "0")}`;
 
             setState("slices", (slices) => [
               ...slices,
@@ -263,6 +270,23 @@ export function SpriteProvider(props: { children: JSX.Element }) {
     setFocusedSliceId(null);
   };
 
+  const setNamePrefix = (prefix: string) => {
+    setState({ namePrefix: prefix });
+  };
+
+  const setStartIndex = (index: number) => {
+    setState({ startIndex: index });
+  };
+
+  const applyNames = () => {
+    setState("slices", (slices) =>
+      slices.map((slice, i) => ({
+        ...slice,
+        name: `${state.namePrefix}${(i + state.startIndex).toString().padStart(2, "0")}`,
+      }))
+    );
+  };
+
   const updateSliceDimensions = (id: string, width: number, height: number) => {
     setState("slices", (slices) =>
       slices.map((slice) => (slice.id === id ? { ...slice, width, height } : slice))
@@ -295,6 +319,9 @@ export function SpriteProvider(props: { children: JSX.Element }) {
         selectedSlice,
         setSelectedSlice,
         updateSliceDimensions,
+        setNamePrefix,
+        setStartIndex,
+        applyNames,
         focusSlice,
         blurSlice,
         focusedSliceId,

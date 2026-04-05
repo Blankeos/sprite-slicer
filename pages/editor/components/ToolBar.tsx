@@ -25,6 +25,9 @@ export default function ToolBar(props: ToolBarProps) {
     updateSlice,
     focusedSliceId,
     updateSliceDimensions,
+    setNamePrefix,
+    setStartIndex,
+    applyNames,
   } = useSpriteContext();
 
   const [gridRows, setGridRows] = createSignal(state.gridRows);
@@ -235,6 +238,48 @@ export default function ToolBar(props: ToolBarProps) {
         </div>
       </Show>
 
+      {/* Naming Controls */}
+      <div class="flex gap-3">
+        <div>
+          <label class="mb-1.5 block text-sm font-bold text-black">Name Prefix</label>
+          <input
+            type="text"
+            value={state.namePrefix}
+            onInput={(e) => setNamePrefix(e.target.value)}
+            placeholder="slice"
+            class="h-8 w-24 border-2 border-black px-2 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none"
+          />
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-bold text-black">Start Index</label>
+          <input
+            type="number"
+            min="0"
+            value={state.startIndex}
+            onInput={(e) => setStartIndex(parseInt(e.target.value) || 0)}
+            class="h-8 w-16 border-2 border-black px-2 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none"
+          />
+        </div>
+        <div class="mb-0.5 self-end">
+          <Tippy
+            content="Apply name prefix and start index to all slices"
+            props={{ animation: "shift-away-subtle", placement: "bottom" }}
+          >
+            <button
+              onClick={applyNames}
+              disabled={state.slices.length === 0}
+              class={`h-8 border-2 border-black px-2 py-1 text-xs font-bold transition-all ${
+                state.slices.length === 0
+                  ? "cursor-not-allowed opacity-50"
+                  : "bg-violet-500 text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+              }`}
+            >
+              Apply Names
+            </button>
+          </Tippy>
+        </div>
+      </div>
+
       {/* Spacer */}
       <div class="flex-grow" />
 
@@ -286,7 +331,7 @@ export default function ToolBar(props: ToolBarProps) {
             }`}
           >
             <IconHideSlices class="h-3 w-3" />
-            {state.showSlices ? "Hide Slices" : "Show Slices"}
+            {state.showSlices ? "Showing Slices" : "Hiding Slices"}
           </button>
         </Tippy>
 
@@ -304,7 +349,7 @@ export default function ToolBar(props: ToolBarProps) {
             }`}
           >
             <IconPixelated class="h-3 w-3" />
-            {state.pixelated ? "Smooth" : "Pixelated"}
+            {state.pixelated ? "Pixelated" : "Smooth"}
           </button>
         </Tippy>
 
@@ -322,7 +367,7 @@ export default function ToolBar(props: ToolBarProps) {
             }`}
           >
             <IconRuler class="h-3 w-3" />
-            {state.showRulers ? "Hide Rulers" : "Show Rulers"}
+            {state.showRulers ? "Showing Rulers" : "Hiding Rulers"}
           </button>
         </Tippy>
 
