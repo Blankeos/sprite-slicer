@@ -38,12 +38,25 @@ export default function SpriteCanvas() {
 
   const [imageWidth, setImageWidth] = createSignal(0);
   const [imageHeight, setImageHeight] = createSignal(0);
+  const [shouldCenter, setShouldCenter] = createSignal(false);
 
   createEffect(() => {
     if (imgRef()) {
       imgRef()!.onload = () => {
         setImageWidth(imgRef()!.naturalWidth);
         setImageHeight(imgRef()!.naturalHeight);
+
+        // Center the image in the viewport on first load
+        if (shouldCenter() && canvasRef) {
+          const rect = canvasRef.getBoundingClientRect();
+          const imgW = imgRef()!.naturalWidth;
+          const imgH = imgRef()!.naturalHeight;
+          setPan({
+            x: (rect.width - imgW) / 2,
+            y: (rect.height - imgH) / 2,
+          });
+          setShouldCenter(false);
+        }
       };
     }
   });
@@ -871,11 +884,11 @@ export default function SpriteCanvas() {
     window.removeEventListener("keydown", handleEscapePress);
   });
 
-  // Reset pan and zoom when the image changes
+  // Reset pan and zoom when the image changes, and flag for centering
   createEffect(() => {
     if (state.imageUrl) {
       setZoom(1);
-      setPan({ x: 0, y: 0 });
+      setShouldCenter(true);
     }
   });
 

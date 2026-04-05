@@ -51,14 +51,180 @@ export default function Page() {
 
       {/* Full-screen drag overlay */}
       <Show when={dropzone.isDragActive}>
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div class="animate-fade-up flex flex-col items-center gap-4">
-            <div class="border-4 border-white bg-lime-300 p-6 shadow-[8px_8px_0px_0px_rgba(255,255,255,0.3)]">
-              <IconCloudUpload class="h-16 w-16 text-black" />
+        <div
+          class="fixed inset-0 z-50 flex items-center justify-center"
+          style={{
+            background: "rgba(0,0,0,0.75)",
+            "backdrop-filter": "blur(4px)",
+            "background-image":
+              "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.03) 3px, rgba(255,255,255,0.03) 4px)",
+          }}
+        >
+          {/* Animated marching-ants border inset */}
+          <div
+            class="absolute inset-4 sm:inset-8"
+            style={{
+              "background-image":
+                "repeating-linear-gradient(90deg, rgba(255,255,255,0.7) 0px, rgba(255,255,255,0.7) 10px, transparent 10px, transparent 20px)," +
+                "repeating-linear-gradient(90deg, rgba(255,255,255,0.7) 0px, rgba(255,255,255,0.7) 10px, transparent 10px, transparent 20px)," +
+                "repeating-linear-gradient(0deg, rgba(255,255,255,0.7) 0px, rgba(255,255,255,0.7) 10px, transparent 10px, transparent 20px)," +
+                "repeating-linear-gradient(0deg, rgba(255,255,255,0.7) 0px, rgba(255,255,255,0.7) 10px, transparent 10px, transparent 20px)",
+              "background-size": "100% 3px, 100% 3px, 3px 100%, 3px 100%",
+              "background-position": "0 0, 0 100%, 0 0, 100% 0",
+              "background-repeat": "no-repeat",
+              animation: "marching-ants 0.5s linear infinite",
+            }}
+          />
+
+          {/* Floating pixel sprites in corners */}
+          <div
+            class="absolute left-6 top-6 sm:left-12 sm:top-12"
+            style={{ animation: "float 2s ease-in-out infinite" }}
+          >
+            <div class="grid grid-cols-3 gap-0.5">
+              <For each={[0, 1, 0, 1, 1, 1, 1, 0, 1]}>
+                {(on) => (
+                  <div
+                    class="h-3 w-3 sm:h-4 sm:w-4"
+                    style={{
+                      background: on ? "#a3e635" : "transparent",
+                      "box-shadow": on ? "0 0 6px rgba(163,230,53,0.6)" : "none",
+                    }}
+                  />
+                )}
+              </For>
             </div>
-            <p class="font-display border-4 border-white bg-black px-6 py-3 text-2xl font-extrabold text-white shadow-[6px_6px_0px_0px_rgba(255,255,255,0.3)]">
-              Drop it right here!
-            </p>
+          </div>
+
+          <div
+            class="absolute right-6 top-6 sm:right-12 sm:top-12"
+            style={{
+              animation: "float 2s ease-in-out infinite",
+              "animation-delay": "0.5s",
+            }}
+          >
+            <div class="grid grid-cols-3 gap-0.5">
+              <For each={[1, 1, 1, 1, 0, 1, 1, 1, 1]}>
+                {(on) => (
+                  <div
+                    class="h-3 w-3 sm:h-4 sm:w-4"
+                    style={{
+                      background: on ? "#f472b6" : "transparent",
+                      "box-shadow": on ? "0 0 6px rgba(244,114,182,0.6)" : "none",
+                    }}
+                  />
+                )}
+              </For>
+            </div>
+          </div>
+
+          <div
+            class="absolute bottom-6 left-6 sm:bottom-12 sm:left-12"
+            style={{
+              animation: "float 2s ease-in-out infinite",
+              "animation-delay": "1s",
+            }}
+          >
+            <div class="grid grid-cols-3 gap-0.5">
+              <For each={[1, 0, 1, 0, 1, 0, 1, 0, 1]}>
+                {(on) => (
+                  <div
+                    class="h-3 w-3 sm:h-4 sm:w-4"
+                    style={{
+                      background: on ? "#22d3ee" : "transparent",
+                      "box-shadow": on ? "0 0 6px rgba(34,211,238,0.6)" : "none",
+                    }}
+                  />
+                )}
+              </For>
+            </div>
+          </div>
+
+          <div
+            class="absolute bottom-6 right-6 sm:bottom-12 sm:right-12"
+            style={{
+              animation: "float 2s ease-in-out infinite",
+              "animation-delay": "1.5s",
+            }}
+          >
+            <div class="grid grid-cols-3 gap-0.5">
+              <For each={[1, 1, 0, 0, 1, 1, 1, 1, 0]}>
+                {(on) => (
+                  <div
+                    class="h-3 w-3 sm:h-4 sm:w-4"
+                    style={{
+                      background: on ? "#facc15" : "transparent",
+                      "box-shadow": on ? "0 0 6px rgba(250,204,21,0.6)" : "none",
+                    }}
+                  />
+                )}
+              </For>
+            </div>
+          </div>
+
+          {/* Center content */}
+          <div class="animate-fade-up flex flex-col items-center gap-5">
+            {/* Bouncing icon with pixel glow */}
+            <div
+              class="border-4 border-white bg-lime-400 p-6"
+              style={{
+                "box-shadow":
+                  "8px 8px 0px 0px rgba(255,255,255,0.4), 0 0 30px rgba(163,230,53,0.4), 0 0 60px rgba(163,230,53,0.2)",
+                animation: "drop-bounce 1s ease-in-out infinite",
+              }}
+            >
+              <IconCloudUpload class="h-14 w-14 text-black sm:h-16 sm:w-16" />
+            </div>
+
+            {/* Label with stacked neo-brutal layers */}
+            <div class="relative">
+              {/* Shadow layer */}
+              <div
+                class="absolute inset-0 translate-x-2 translate-y-2 border-4 border-white/30 bg-pink-400"
+                aria-hidden="true"
+              />
+              <p
+                class="font-display relative border-4 border-white bg-black px-8 py-3.5 text-2xl font-extrabold text-white sm:text-3xl"
+                style={{
+                  "text-shadow": "0 0 20px rgba(163,230,53,0.5)",
+                }}
+              >
+                Drop it right here!
+              </p>
+            </div>
+
+            {/* Pixel arrow hints */}
+            <div class="flex items-center gap-3 opacity-70">
+              <For each={[0, 1, 2]}>
+                {(i) => (
+                  <div
+                    style={{
+                      width: "8px",
+                      height: "8px",
+                      background: "white",
+                      animation: `drop-hint 1.2s ease-in-out infinite`,
+                      "animation-delay": `${i * 0.15}s`,
+                    }}
+                  />
+                )}
+              </For>
+              <span class="font-mono-dm text-sm font-medium text-white/80">
+                PNG, JPG, GIF, WEBP
+              </span>
+              <For each={[0, 1, 2]}>
+                {(i) => (
+                  <div
+                    style={{
+                      width: "8px",
+                      height: "8px",
+                      background: "white",
+                      animation: `drop-hint 1.2s ease-in-out infinite`,
+                      "animation-delay": `${i * 0.15}s`,
+                    }}
+                  />
+                )}
+              </For>
+            </div>
           </div>
         </div>
       </Show>
