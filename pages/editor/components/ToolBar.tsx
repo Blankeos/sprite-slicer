@@ -185,7 +185,6 @@ export default function ToolBar(props: ToolBarProps) {
               <button
                 onClick={() => {
                   setGridDimensions(gridRows(), gridCols());
-                  generateSlices();
                 }}
                 class="h-8 border-2 border-black bg-blue-500 px-2 py-1 text-xs font-bold text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:cursor-not-allowed disabled:opacity-50"
               >
