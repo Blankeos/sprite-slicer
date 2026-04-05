@@ -31,20 +31,20 @@ export default function SliceSidebar() {
   };
 
   return (
-    <div class="flex h-full w-64 shrink-0 flex-col overflow-y-auto border-r bg-white">
-      <div class="border-b p-4">
-        <h2 class="text-lg font-semibold text-gray-800">Slices</h2>
-        <p class="mt-1 text-sm text-gray-500">
+    <div class="flex h-full w-64 shrink-0 flex-col overflow-y-auto border-r-2 border-black bg-white">
+      <div class="border-b-2 border-black bg-yellow-200 p-4">
+        <h2 class="font-display text-lg font-bold text-black">Slices</h2>
+        <p class="font-mono-dm mt-1 text-xs font-medium text-black/60">
           {state.slices.length} {state.slices.length === 1 ? "slice" : "slices"}
         </p>
       </div>
 
       <div class="flex-grow overflow-y-auto">
         {state.slices.length === 0 ? (
-          <div class="p-4 text-center text-sm text-gray-500">
-            <p>No slices created yet.</p>
-            <p class="mt-2">
-              Use the rectangle tool to manually create slices, or use the grid/pixel options.
+          <div class="font-body p-4 text-center text-sm text-gray-500">
+            <p class="font-bold text-black/40">No slices yet</p>
+            <p class="mt-1.5 text-xs leading-relaxed">
+              Draw rectangles on the canvas, or use grid/pixel slicing from the toolbar.
             </p>
           </div>
         ) : (
@@ -52,15 +52,15 @@ export default function SliceSidebar() {
             <For each={state.slices}>
               {(slice) => (
                 <div
-                  class={`group relative flex items-center border-b p-3 hover:bg-gray-50 ${
-                    focusedSliceId() === slice.id ? "bg-blue-100" : ""
+                  class={`group relative flex items-center border-b border-gray-200 p-3 transition-colors hover:bg-blue-50 ${
+                    focusedSliceId() === slice.id ? "border-l-4 border-l-blue-500 bg-blue-100" : ""
                   }`}
                   onClick={(e) => {
                     e.preventDefault();
                     focusSlice(slice.id);
                   }}
                 >
-                  <div class="mr-3 h-8 w-8 flex-shrink-0 overflow-hidden rounded bg-blue-100">
+                  <div class="mr-3 h-8 w-8 flex-shrink-0 overflow-hidden border border-black bg-blue-100">
                     <Show when={state.imageUrl}>
                       <SliceThumbnail slice={slice} imageUrl={state.imageUrl} size={32} />
                     </Show>
@@ -72,7 +72,7 @@ export default function SliceSidebar() {
                       fallback={
                         <div class="flex items-center">
                           <span
-                            class="truncate border-b border-transparent text-sm text-gray-800"
+                            class="font-mono-dm truncate border-b border-transparent text-xs font-medium text-black"
                             onDblClick={() => startEditing(slice.id, slice.name)}
                           >
                             {slice.name}
@@ -111,8 +111,8 @@ export default function SliceSidebar() {
                       />
                     </Show>
 
-                    <div class="mt-0.5 text-xs text-gray-500">
-                      {slice.width} × {slice.height}px
+                    <div class="font-mono-dm mt-0.5 text-[10px] text-gray-400">
+                      {slice.width} x {slice.height}px
                     </div>
                   </div>
 

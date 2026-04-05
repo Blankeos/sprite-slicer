@@ -75,7 +75,7 @@ export default function ToolBar(props: ToolBarProps) {
   };
 
   return (
-    <div class="flex flex-wrap items-center gap-4 border-2 border-b border-black bg-white p-4">
+    <div class="flex flex-wrap items-center gap-4 border-b-2 border-black bg-white p-4">
       <Tippy
         content="Back to home page"
         props={{ animation: "shift-away-subtle", placement: "bottom" }}

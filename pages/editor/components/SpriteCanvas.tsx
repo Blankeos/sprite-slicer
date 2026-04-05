@@ -894,14 +894,13 @@ export default function SpriteCanvas() {
 
   return (
     <div
-      class="relative h-full w-full overflow-hidden bg-gray-800 select-none"
-      // style={{
-      //   "background-image":
-      //     "linear-gradient(45deg, #666666 25%, transparent 25%), linear-gradient(-45deg, #666666 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #666666 75%), linear-gradient(-45deg, transparent 75%, #666666 75%)",
-      //   "background-size": `${Math.max(16, 20 / state.zoom)}px ${Math.max(16, 20 / state.zoom)}px`,
-      //   "background-position": `0 0, 0 ${Math.max(8, 10 / state.zoom)}px, ${Math.max(8, 10 / state.zoom)}px -${Math.max(8, 10 / state.zoom)}px, -${Math.max(8, 10 / state.zoom)}px 0px`,
-      //   "background-color": "#888888",
-      // }}
+      class="relative h-full w-full overflow-hidden select-none"
+      style={{
+        "background-color": "#2d2d2d",
+        "background-image":
+          "radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px)",
+        "background-size": "20px 20px",
+      }}
       ref={canvasRef}
     >
       <Show
@@ -960,28 +959,19 @@ export default function SpriteCanvas() {
       </Show>
 
       {/* Zoom and Pan Instructions */}
-      <div class="absolute right-4 bottom-4 space-y-1 rounded bg-black/50 p-2 text-xs text-white">
-        <p>
-          🖱️ <b>Draw Rectangle:</b> Click and drag
-        </p>
-        <p>
-          ⌨️ <b>Pan:</b> Ctrl/Cmd + Drag OR Middle-mouse + drag
-        </p>
-        <p>
-          🖲️ <b>Zoom:</b> Mouse wheel
-        </p>
-        <p>
-          🔍 <b>Mode:</b> {state.pixelated ? "Pixelated" : "Smooth"}
-        </p>
-        <p>
-          👁️ <b>Slices:</b> {state.showSlices ? "Visible" : "Hidden"}
-        </p>
-        <p>
-          📏 <b>Rulers:</b> {state.showRulers ? "Visible" : "Hidden"}
-        </p>
-        <p>
-          #️⃣ <b>Grid:</b> {state.showGrid ? `${state.gridSize}px` : "Hidden"}
-        </p>
+      <div class="font-mono-dm absolute right-3 bottom-3 border-2 border-black bg-white p-2.5 text-xs text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+        <div class="mb-1.5 border-b-2 border-black pb-1 text-[10px] font-bold uppercase tracking-wider">Controls</div>
+        <div class="space-y-0.5">
+          <p><b>Draw:</b> Click + drag</p>
+          <p><b>Pan:</b> Cmd + drag / Middle-mouse</p>
+          <p><b>Zoom:</b> Scroll wheel</p>
+        </div>
+        <div class="mt-1.5 border-t border-gray-300 pt-1.5 space-y-0.5 text-gray-600">
+          <p><b>Mode:</b> {state.pixelated ? "Pixelated" : "Smooth"}</p>
+          <p><b>Slices:</b> {state.showSlices ? "Visible" : "Hidden"}</p>
+          <p><b>Rulers:</b> {state.showRulers ? "Visible" : "Hidden"}</p>
+          <p><b>Grid:</b> {state.showGrid ? `${state.gridSize}px` : "Hidden"}</p>
+        </div>
       </div>
     </div>
   );
