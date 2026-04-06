@@ -32,8 +32,11 @@ export default function SpriteCanvas() {
   } | null>(null);
   const [isResizing, setIsResizing] = createSignal(false);
   const [resizeState, setResizeState] = createSignal<{
-    slice: SliceRect;
+    sliceId: string;
     corner: "nw" | "ne" | "sw" | "se";
+    /** Fixed anchor point — the corner opposite to the one being dragged */
+    anchorX: number;
+    anchorY: number;
   } | null>(null);
 
   const [imageWidth, setImageWidth] = createSignal(0);
@@ -61,28 +64,79 @@ export default function SpriteCanvas() {
     }
   });
 
-  // Add hotkeys handler for delete functionality
-  // Add this useHotkeys hook after your other hooks and state declarations
+  // Clipboard for copy/paste of slice dimensions
+  const [clipboardSlice, setClipboardSlice] = createSignal<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+
   useHotkeys([
     [
       "meta+x",
       (e) => {
-        // If a slice is focused, delete it
         if (focusedSliceId()) {
-          e.preventDefault(); // Prevent default cut behavior
+          e.preventDefault();
           removeSlice(focusedSliceId()!);
-          blurSlice(); // Clear focus after deletion
+          blurSlice();
         }
       },
     ],
     [
       "delete",
       (e) => {
-        // If a slice is focused, delete it
         if (focusedSliceId()) {
-          e.preventDefault(); // Prevent default cut behavior
+          e.preventDefault();
           removeSlice(focusedSliceId()!);
-          blurSlice(); // Clear focus after deletion
+          blurSlice();
+        }
+      },
+    ],
+    [
+      "meta+c",
+      (e) => {
+        if (focusedSliceId()) {
+          e.preventDefault();
+          const slice = state.slices.find((s) => s.id === focusedSliceId());
+          if (slice) {
+            setClipboardSlice({ x: slice.x, y: slice.y, width: slice.width, height: slice.height });
+          }
+        }
+      },
+    ],
+    [
+      "meta+v",
+      (e) => {
+        const clip = clipboardSlice();
+        if (clip) {
+          e.preventDefault();
+          // Paste with a small offset so it's visible
+          const newSlice = addSlice({
+            x: clip.x + 10,
+            y: clip.y + 10,
+            width: clip.width,
+            height: clip.height,
+          });
+          if (newSlice) focusSlice(newSlice.id);
+        }
+      },
+    ],
+    [
+      "meta+d",
+      (e) => {
+        if (focusedSliceId()) {
+          e.preventDefault();
+          const slice = state.slices.find((s) => s.id === focusedSliceId());
+          if (slice) {
+            const newSlice = addSlice({
+              x: slice.x + 10,
+              y: slice.y + 10,
+              width: slice.width,
+              height: slice.height,
+            });
+            if (newSlice) focusSlice(newSlice.id);
+          }
         }
       },
     ],
@@ -276,7 +330,7 @@ export default function SpriteCanvas() {
       const height = Math.abs(current.y - start.y);
 
       // Add a new slice if the rectangle has a valid size
-      if (width > 5 && height > 5) {
+      if (width >= 1 && height >= 1) {
         // Ensure discrete pixel values
         const discreteX = Math.round(x);
         const discreteY = Math.round(y);
@@ -296,7 +350,29 @@ export default function SpriteCanvas() {
     (slice: SliceRect, corner: "nw" | "ne" | "sw" | "se") => (e: MouseEvent) => {
       e.stopPropagation();
       setIsResizing(true);
-      setResizeState({ slice, corner });
+
+      // Compute the fixed anchor — the corner opposite to the one being dragged
+      let anchorX: number, anchorY: number;
+      switch (corner) {
+        case "nw":
+          anchorX = slice.x + slice.width;
+          anchorY = slice.y + slice.height;
+          break;
+        case "ne":
+          anchorX = slice.x;
+          anchorY = slice.y + slice.height;
+          break;
+        case "sw":
+          anchorX = slice.x + slice.width;
+          anchorY = slice.y;
+          break;
+        case "se":
+          anchorX = slice.x;
+          anchorY = slice.y;
+          break;
+      }
+
+      setResizeState({ sliceId: slice.id, corner, anchorX, anchorY });
     };
 
   const handleResizeEnd = () => {
@@ -304,92 +380,28 @@ export default function SpriteCanvas() {
     setResizeState(null);
   };
 
-  const handleResize = (e: MouseEvent, slice: SliceRect, corner: "nw" | "ne" | "sw" | "se") => {
+  const handleResize = (e: MouseEvent) => {
+    const rs = resizeState();
+    if (!rs) return;
     e.stopPropagation();
+
+    const { sliceId, corner, anchorX, anchorY } = rs;
     const pos = getScaledPosition(e.clientX, e.clientY);
 
-    // Clamp position to image boundaries
-    const clampedPos = {
-      x: clamp(pos.x, 0, imageWidth()),
-      y: clamp(pos.y, 0, imageHeight()),
-    };
+    // Clamp mouse position to image boundaries
+    const mouseX = clamp(pos.x, 0, imageWidth());
+    const mouseY = clamp(pos.y, 0, imageHeight());
 
-    let newX = slice.x;
-    let newY = slice.y;
-    let newWidth = slice.width;
-    let newHeight = slice.height;
-
-    // Calculate new dimensions based on the corner being dragged
-    switch (corner) {
-      case "nw":
-        // Northwest: adjust x, y, width, and height
-        newWidth = slice.x + slice.width - clampedPos.x;
-        newHeight = slice.y + slice.height - clampedPos.y;
-        newX = clampedPos.x;
-        newY = clampedPos.y;
-        break;
-
-      case "ne":
-        // Northeast: adjust y, width, and height
-        newWidth = clampedPos.x - slice.x;
-        newHeight = slice.y + slice.height - clampedPos.y;
-        newY = clampedPos.y;
-        break;
-
-      case "sw":
-        // Southwest: adjust x, width, and height
-        newWidth = slice.x + slice.width - clampedPos.x;
-        newHeight = clampedPos.y - slice.y;
-        newX = clampedPos.x;
-        break;
-
-      case "se":
-        // Southeast: adjust width and height
-        newWidth = clampedPos.x - slice.x;
-        newHeight = clampedPos.y - slice.y;
-        break;
-    }
+    // Build the rect from the fixed anchor and the current mouse position.
+    // min/max ensures correct rect even if the user drags past the anchor.
+    let newX = Math.min(mouseX, anchorX);
+    let newY = Math.min(mouseY, anchorY);
+    let newWidth = Math.abs(mouseX - anchorX);
+    let newHeight = Math.abs(mouseY - anchorY);
 
     // Ensure minimum dimensions (at least 1px)
     newWidth = Math.max(1, newWidth);
     newHeight = Math.max(1, newHeight);
-
-    // Ensure the slice stays within image boundaries
-    // If x + width exceeds image width, adjust width
-    if (newX + newWidth > imageWidth()) {
-      newWidth = imageWidth() - newX;
-    }
-
-    // If y + height exceeds image height, adjust height
-    if (newY + newHeight > imageHeight()) {
-      newHeight = imageHeight() - newY;
-    }
-
-    // Maintain aspect ratio when Shift key is held
-    if (e.shiftKey) {
-      const aspectRatio = slice.width / slice.height;
-
-      if (["ne", "sw"].includes(corner)) {
-        // For corners where dragging direction is inverted,
-        // use a different calculation approach
-        if (Math.abs(newWidth / newHeight - aspectRatio) > 0.1) {
-          if (newWidth / aspectRatio < imageHeight() - newY) {
-            newHeight = newWidth / aspectRatio;
-          } else {
-            newWidth = newHeight * aspectRatio;
-          }
-        }
-      } else {
-        // For normal corners
-        if (Math.abs(newWidth / newHeight - aspectRatio) > 0.1) {
-          if (newWidth / aspectRatio < imageHeight() - newY) {
-            newHeight = newWidth / aspectRatio;
-          } else {
-            newWidth = newHeight * aspectRatio;
-          }
-        }
-      }
-    }
 
     // Round dimensions to whole pixels
     newX = Math.round(newX);
@@ -398,7 +410,7 @@ export default function SpriteCanvas() {
     newHeight = Math.round(newHeight);
 
     // Update the slice
-    updateSlice(slice.id, {
+    updateSlice(sliceId, {
       x: newX,
       y: newY,
       width: newWidth,
@@ -408,7 +420,7 @@ export default function SpriteCanvas() {
 
   const handleMove = (e: MouseEvent) => {
     if (isResizing() && resizeState()) {
-      handleResize(e, resizeState()!.slice, resizeState()!.corner);
+      handleResize(e);
       return;
     }
     if (dragging()) {

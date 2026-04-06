@@ -43,7 +43,7 @@ type SpriteContextValue = {
   setSliceType: (type: SliceType) => void;
   setGridDimensions: (rows: number, cols: number) => void;
   setPixelDimensions: (width: number, height: number) => void;
-  addSlice: (slice: Omit<SliceRect, "id" | "name">) => void;
+  addSlice: (slice: Omit<SliceRect, "id" | "name">) => SliceRect;
   updateSlice: (id: string, slice: Partial<SliceRect>) => void;
   removeSlice: (id: string) => void;
   clearSlices: () => void;
@@ -146,10 +146,12 @@ export function SpriteProvider(props: { children: JSX.Element }) {
     }
   };
 
-  const addSlice = (slice: Omit<SliceRect, "id" | "name">) => {
+  const addSlice = (slice: Omit<SliceRect, "id" | "name">): SliceRect => {
     const id = crypto.randomUUID();
     const name = generateSliceName();
-    setState("slices", (slices) => [...slices, { ...slice, id, name }]);
+    const newSlice = { ...slice, id, name };
+    setState("slices", (slices) => [...slices, newSlice]);
+    return newSlice;
   };
 
   const updateSlice = (id: string, slice: Partial<SliceRect>) => {
