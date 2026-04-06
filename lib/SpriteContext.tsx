@@ -1,4 +1,5 @@
 import { useLocalStorageStore } from "bagon-hooks";
+import { arrayMoveImmutable } from "@/components/drag-and-drop/array-move";
 import { createContext, createSignal, JSX, useContext } from "solid-js";
 
 // Define types for our slices
@@ -63,6 +64,7 @@ type SpriteContextValue = {
   setNamePrefix: (prefix: string) => void;
   setStartIndex: (index: number) => void;
   applyNames: () => void;
+  reorderSlices: (fromIndex: number, toIndex: number) => void;
   focusSlice: (id: string) => void;
   blurSlice: () => void;
   focusedSliceId: () => string | null;
@@ -289,6 +291,10 @@ export function SpriteProvider(props: { children: JSX.Element }) {
     );
   };
 
+  const reorderSlices = (fromIndex: number, toIndex: number) => {
+    setState("slices", (slices) => arrayMoveImmutable(slices, fromIndex, toIndex));
+  };
+
   const updateSliceDimensions = (id: string, width: number, height: number) => {
     setState("slices", (slices) =>
       slices.map((slice) => (slice.id === id ? { ...slice, width, height } : slice))
@@ -321,6 +327,7 @@ export function SpriteProvider(props: { children: JSX.Element }) {
         selectedSlice,
         setSelectedSlice,
         updateSliceDimensions,
+        reorderSlices,
         setNamePrefix,
         setStartIndex,
         applyNames,
