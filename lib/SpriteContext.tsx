@@ -68,6 +68,13 @@ type SpriteContextValue = {
   focusSlice: (id: string) => void;
   blurSlice: () => void;
   focusedSliceId: () => string | null;
+  // Multi-selection for animation preview
+  selectedSliceIds: () => Set<string>;
+  toggleSelectSlice: (id: string) => void;
+  rangeSelectSlices: (id: string) => void;
+  clearSliceSelection: () => void;
+  lastClickedSliceId: () => string | null;
+  selectedSlicesOrdered: () => SliceRect[];
 };
 
 // Create the context
@@ -102,6 +109,10 @@ export function SpriteProvider(props: { children: JSX.Element }) {
 
   const [selectedSlice, setSelectedSlice] = createSignal<SliceRect | null>(null);
   const [focusedSliceId, setFocusedSliceId] = createSignal<string | null>(null);
+
+  // Multi-selection state for animation preview
+  const [selectedSliceIds, setSelectedSliceIds] = createSignal<Set<string>>(new Set());
+  const [lastClickedSliceId, setLastClickedSliceId] = createSignal<string | null>(null);
 
   // Helper to generate a unique slice name
   const generateSliceName = () => {
@@ -295,6 +306,55 @@ export function SpriteProvider(props: { children: JSX.Element }) {
     setState("slices", (slices) => arrayMoveImmutable(slices, fromIndex, toIndex));
   };
 
+  // Multi-selection methods
+  const toggleSelectSlice = (id: string) => {
+    setSelectedSliceIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+    setLastClickedSliceId(id);
+  };
+
+  const rangeSelectSlices = (id: string) => {
+    const lastId = lastClickedSliceId();
+    if (!lastId) {
+      toggleSelectSlice(id);
+      return;
+    }
+    const sliceIds = state.slices.map((s) => s.id);
+    const startIdx = sliceIds.indexOf(lastId);
+    const endIdx = sliceIds.indexOf(id);
+    if (startIdx === -1 || endIdx === -1) return;
+
+    const from = Math.min(startIdx, endIdx);
+    const to = Math.max(startIdx, endIdx);
+    const rangeIds = sliceIds.slice(from, to + 1);
+
+    setSelectedSliceIds((prev) => {
+      const next = new Set(prev);
+      for (const rid of rangeIds) {
+        next.add(rid);
+      }
+      return next;
+    });
+    // Don't update lastClickedSliceId on shift-click so further shifts extend from same anchor
+  };
+
+  const clearSliceSelection = () => {
+    setSelectedSliceIds(new Set<string>());
+    setLastClickedSliceId(null);
+  };
+
+  const selectedSlicesOrdered = () => {
+    const ids = selectedSliceIds();
+    return state.slices.filter((s) => ids.has(s.id));
+  };
+
   const updateSliceDimensions = (id: string, width: number, height: number) => {
     setState("slices", (slices) =>
       slices.map((slice) => (slice.id === id ? { ...slice, width, height } : slice))
@@ -334,6 +394,12 @@ export function SpriteProvider(props: { children: JSX.Element }) {
         focusSlice,
         blurSlice,
         focusedSliceId,
+        selectedSliceIds,
+        toggleSelectSlice,
+        rangeSelectSlices,
+        clearSliceSelection,
+        lastClickedSliceId,
+        selectedSlicesOrdered,
       }}
     >
       {props.children}

@@ -5,6 +5,7 @@ import JSZip from "jszip";
 import { createEffect, createSignal } from "solid-js";
 import { useMetadata } from "vike-metadata-solid";
 import { navigate } from "vike/client/router";
+import AnimationPreview from "./components/AnimationPreview";
 import SliceSidebar from "./components/SliceSidebar";
 import SpriteCanvas from "./components/SpriteCanvas";
 import ToolBar from "./components/ToolBar";
@@ -108,6 +109,9 @@ function EditorContent() {
           <SpriteCanvas />
         </div>
       </div>
+
+      {/* Animation preview (shows when 2+ slices are selected) */}
+      <AnimationPreview />
     </div>
   );
 }

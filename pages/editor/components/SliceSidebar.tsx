@@ -3,8 +3,18 @@ import { DragAndDropProvider, DraggableItem, useAutoScroll } from "@/components/
 import { For, Show, createMemo, createSignal } from "solid-js";
 
 export default function SliceSidebar() {
-  const { state, updateSlice, removeSlice, focusedSliceId, focusSlice, reorderSlices } =
-    useSpriteContext();
+  const {
+    state,
+    updateSlice,
+    removeSlice,
+    focusedSliceId,
+    focusSlice,
+    reorderSlices,
+    selectedSliceIds,
+    toggleSelectSlice,
+    rangeSelectSlices,
+    clearSliceSelection,
+  } = useSpriteContext();
   const [editingId, setEditingId] = createSignal<string | null>(null);
   const [tempName, setTempName] = createSignal("");
 
@@ -73,12 +83,22 @@ export default function SliceSidebar() {
                           focusedSliceId() === slice.id
                             ? "border-l-4 border-l-blue-500 bg-blue-100"
                             : ""
+                        } ${
+                          selectedSliceIds().has(slice.id)
+                            ? "bg-violet-50 ring-1 ring-inset ring-violet-300"
+                            : ""
                         } ${dragState() === "dragging" ? "opacity-40" : ""} ${
                           dragState() === "over" ? "border-t-2 border-t-blue-400" : ""
                         }`}
                         onClick={(e) => {
                           e.preventDefault();
-                          focusSlice(slice.id);
+                          if (e.shiftKey) {
+                            rangeSelectSlices(slice.id);
+                          } else {
+                            clearSliceSelection();
+                            toggleSelectSlice(slice.id);
+                            focusSlice(slice.id);
+                          }
                         }}
                         style={{ cursor: "grab" }}
                       >

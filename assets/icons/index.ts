@@ -7,3 +7,5 @@ export { default as IconSelectObject } from './fluent:select-object-24-filled.ts
 export { default as IconImagePixel } from './fluent-mdl2:image-pixel.tsx';
 export { default as IconSparkle } from './ph:sparkle-bold.tsx';
 export { default as IconScissors } from './pixelarticons:scissors.tsx';
+export { default as IconPlay } from './ri:play-fill.tsx';
+export { default as IconPause } from './ri:pause-fill.tsx';
