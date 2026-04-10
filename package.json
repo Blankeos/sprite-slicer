@@ -26,7 +26,7 @@
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "typescript": "^5.8.2",
-    "vite": "^6.2.1"
+    "vite": "^8.0.3"
   },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.7.10",
@@ -42,8 +42,8 @@
     "solid-js": "^1.9.5",
     "tailwindcss": "^4.0.12",
     "tippy.js": "^6.3.7",
-    "vike": "0.4.257",
-    "vike-metadata-solid": "^1.0.4",
-    "vike-solid": "^0.7.9"
+    "vike": "^0.4.257",
+    "vike-metadata-solid": "^1.0.5",
+    "vike-solid": "^0.8.2"
   }
 }
